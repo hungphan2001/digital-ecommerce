@@ -79,6 +79,8 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
+      
       </footer>
       <footer className='py-4'>
         <div className="container-xxl">
