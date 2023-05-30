@@ -45,7 +45,7 @@ var blogSchema = new mongoose.Schema(
       default: "Admin",
     },
     images:[
-
+      
     ],
   },
   {

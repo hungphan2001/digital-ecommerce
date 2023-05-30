@@ -54,51 +54,55 @@ const getaProduct = asyncHandler(async (req, res) => {
   }
 });
 
-const getAllProduct = asyncHandler(async (req, res) => {
+const getAllProduct = asyncHandler(async(req, res) => {
   try {
-    // Filtering
-    const queryObj = { ...req.query };
-    const excludeFields = ["page", "sort", "limit", "fields"];
-    excludeFields.forEach((el) => delete queryObj[el]);
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+      //Фильтрация продуктов
+      const queryObj = { ...req.query };
+      const excludeFelds = ['page', 'sort', 'limit', 'fields'];
+      excludeFelds.forEach(el=> delete queryObj[el]);
+      console.log(queryObj)
+      let queryStr = JSON.stringify(queryObj);
+      queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+      console.log(JSON.parse(queryStr));
+      //console.log(queryObj, req.query);
+      let query = Product.find(JSON.parse(queryStr));
+      
+      //Сортировка продуктов
+      if(req.query.sort) {
+          const sortBy = req.query.sort.split(',').join(" ");
+          query=query.sort(sortBy)
+      }else {
+          query = query.sort('-createdAt')
+      }
 
-    let query = Product.find(JSON.parse(queryStr));
+      //Лимит
+      if(req.query.fields) {
+          const fields = req.query.fields.split(',').join(" ");
+          query=query.select(fields)
+      }else {
+          query = query.select('-__v')
+      }
 
-    // Sorting
+      //Пагинация(Разделение контента)
+      const page = req.query.page;
+      const limit = req.query.limit;
+      const skip = (page - 1) * limit;
+      query = query.skip(skip).limit(limit);
+      if(req.query.page) {
+          const productCount = await Product.countDocuments();
+          if(skip >= productCount) throw new Error("Эта страница не существует");
+      }
 
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(",").join(" ");
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort("-createdAt");
-    }
 
-    // limiting the fields
+      console.log(page, limit, skip);
 
-    if (req.query.fields) {
-      const fields = req.query.fields.split(",").join(" ");
-      query = query.select(fields);
-    } else {
-      query = query.select("-__v");
-    }
-
-    // pagination
-
-    const page = req.query.page;
-    const limit = req.query.limit;
-    const skip = (page - 1) * limit;
-    query = query.skip(skip).limit(limit);
-    if (req.query.page) {
-      const productCount = await Product.countDocuments();
-      if (skip >= productCount) throw new Error("This Page does not exists");
-    }
-    const product = await query;
-    res.json(product);
-  } catch (error) {
-    throw new Error(error);
+      const product = await query;
+  res.json(product);
+}   catch(error) {
+      throw new Error(error);
   }
 });
+
 const addToWishlist = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   const { prodId } = req.body;
@@ -189,26 +193,6 @@ const rating = asyncHandler(async (req, res) => {
   }
 });
 
-const uploadImage = asyncHandler(async (req, res) => {
-  try {
-    const uploader = (path) => cloudinaryImgUpload(path, "images");
-    const urls = [];
-    const files = req.files;
-    for (const file of files) {
-      const { path } = file;
-      const newPath = await uploader(path);
-      urls.push(newPath);
-      fs.unlinkSync(path);
-    }
-    const images = urls.map((file) => {
-      return file;
-    });
-
-    res.json(images);
-  } catch (error) {
-    throw new Error(error);
-  }
-});
 
 module.exports = {
   createProduct,
@@ -218,5 +202,4 @@ module.exports = {
   deleteProduct,
   addToWishlist,
   rating,
-  uploadImage,
 };
