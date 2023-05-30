@@ -2,16 +2,19 @@ import axios from "axios";
 import { authSlice } from "./userSlice";
 import { base_url } from "../../utils/axiosConfig";
 const register=async(userData)=>{
-    const resonse =await axios.post(`${base_url}user/register`,userData);
-    if(resonse.data){
-        return resonse.data;
+    const response =await axios.post(`${base_url}user/register`,userData);
+    if(response.data){
+        if (response.data) {
+            localStorage.setItem("customer", JSON.stringify(response.data));
+          }
+        return response.data;
     }
 }
 
 const login=async(userData)=>{
-    const resonse =await axios.post(`${base_url}user/login`,userData);
-    if(resonse.data){
-        return resonse.data;
+    const response =await axios.post(`${base_url}user/login`,userData);
+    if(response.data){
+        return response.data;
     }
 }
 
