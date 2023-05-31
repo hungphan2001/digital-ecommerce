@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect,useState } from "react";
 import ReactStars from "react-rating-stars-component";
+import { useDispatch, useSelector } from "react-redux";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
 import ProductCard from "../components/ProductCard";
@@ -7,16 +8,28 @@ import ReactImageZoom from "react-image-zoom";
 import Color from "../components/Color";
 import { TbGitCompare } from "react-icons/tb";
 import { AiOutlineHeart } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import { Link,useLocation } from "react-router-dom";
 import watch from "../images/watch.jpg";
 import Container from "../components/Container";
+import { getAProduct } from "../features/products/productSlice";
 const SingleProduct = () => {
+  const productState = useSelector((state) => state.product.singleproduct);
+  const location = useLocation();
+  const getProductId = location.pathname.split("/")[2];
+  const dispatch = useDispatch();
+  useEffect(() => {
+    getproduct();
+  }, []);
+  const getproduct = () => {
+    dispatch(getAProduct(getProductId));
+  };
   const props = {
     width: 594,
     height: 600,
     zoomWidth: 600,
 
-    img: "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg",
+    img: productState?.images[0]?.url ? productState?.images[0]?.url :
+    "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg",
   };
 
   const [orderedProduct, setorderedProduct] = useState(true);
@@ -32,8 +45,8 @@ const SingleProduct = () => {
   const closeModal = () => {};
   return (
     <>
-      <Meta title={"Product Name"} />
-      <BreadCrumb title="Product Name" />
+      <Meta title={productState?.title} />
+      <BreadCrumb title={productState?.title} />
       <Container class1="main-product-wrapper py-5 home-wrapper-2">
         <div className="row">
           <div className="col-6">
@@ -43,50 +56,45 @@ const SingleProduct = () => {
               </div>
             </div>
             <div className="other-product-images d-flex flex-wrap gap-15">
-              <div>
+              {
+                productState?.images.map((item,index)=>{
+                  return(
+                    <>
+                    <div>
                 <img
-                  src="https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg"
+                  src={item?.url}
                   className="img-fluid"
                   alt=""
                 />
               </div>
               <div>
                 <img
-                  src="https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg"
+                  src={item?.url}
                   className="img-fluid"
                   alt=""
                 />
               </div>
-              <div>
-                <img
-                  src="https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg"
-                  className="img-fluid"
-                  alt=""
-                />
-              </div>
-              <div>
-                <img
-                  src="https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg"
-                  className="img-fluid"
-                  alt=""
-                />
-              </div>
+                    </>
+              
+                  )
+                })
+              }
             </div>
           </div>
           <div className="col-6">
             <div className="main-product-details">
               <div className="border-bottom">
                 <h3 className="title">
-                  Kids Headphones Bulk 10 Pack Multi Colored For Students
+                {productState?.title}
                 </h3>
               </div>
               <div className="border-bottom py-3">
-                <p className="price">$ 100</p>
+                <p className="price">$ {productState?.price}</p>
                 <div className="d-flex align-items-center gap-10">
                   <ReactStars
                     count={5}
                     size={24}
-                    value={4}
+                    value={productState?.totalrating}
                     edit={false}
                     activeColor="#ffd700"
                   />
@@ -103,15 +111,15 @@ const SingleProduct = () => {
                 </div>
                 <div className="d-flex gap-10 align-items-center my-2">
                   <h3 className="product-heading">Brand :</h3>
-                  <p className="product-data">Havells</p>
+                  <p className="product-data">{productState?.brand}</p>
                 </div>
                 <div className="d-flex gap-10 align-items-center my-2">
                   <h3 className="product-heading">Category :</h3>
-                  <p className="product-data">Watch</p>
+                  <p className="product-data">{productState?.category}</p>
                 </div>
                 <div className="d-flex gap-10 align-items-center my-2">
                   <h3 className="product-heading">Tags :</h3>
-                  <p className="product-data">Watch</p>
+                  <p className="product-data">{productState?.tags}</p>
                 </div>
                 <div className="d-flex gap-10 align-items-center my-2">
                   <h3 className="product-heading">Availablity :</h3>
@@ -189,8 +197,7 @@ const SingleProduct = () => {
                     href="javascript:void(0);"
                     onClick={() => {
                       copyToClipboard(
-                        "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg"
-                      );
+                        window.location.href);
                     }}
                   >
                     Copy Product Link
@@ -206,11 +213,7 @@ const SingleProduct = () => {
           <div className="col-12">
             <h4>Description</h4>
             <div className="bg-white p-3">
-              <p>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                Tenetur nisi similique illum aut perferendis voluptas, quisquam
-                obcaecati qui nobis officia. Voluptatibus in harum deleniti
-                labore maxime officia esse eos? Repellat?
+              <p dangerouslySetInnerHTML={{__html: productState?.description}}>
               </p>
             </div>
           </div>
