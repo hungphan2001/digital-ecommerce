@@ -7,7 +7,7 @@ import CustomInput from "../components/CustomInput";
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useDispatch } from "react-redux";
-import {LoginUser, loginUser} from '../features/user/userSlice';
+import {loginUser} from '../features/user/userSlice';
 const LoginSchema = yup.object({
   email: yup.string().email('Invalid email').required('Email Required'),
   password: yup.string().required('Password Required!'),
