@@ -13,14 +13,14 @@ const Wishlist = () => {
   const getWishlistFromDb = () => {
     dispatch(getUserProductWishlist());
   };
-  const wishlistState = useSelector((state) => state.auth.wishlist.wishlist);
-  console.log(wishlistState);
+
+  const wishlistState = useSelector((state) => state?.auth?.wishlist?.wishlist);
 
   const removeFromWishlist = (id) => {
     dispatch(addToWishlist(id));
     setTimeout(() => {
       dispatch(getUserProductWishlist());
-    }, 300)
+    }, 300);
   }
   return (
     <>
@@ -28,7 +28,7 @@ const Wishlist = () => {
       <BreadCrumb title="Wishlist" />
       <Container class1="wishlist-wrapper home-wrapper-2 py-5">
         <div className="row">
-          {wishlistState.length === 0 && (<div className="text-center fs-3">No Data</div>)}
+          {wishlistState?.length === 0 && (<div className="text-center fs-3">No Data</div>)}
           {wishlistState?.map((item, index) => {
             return (
               <div className="col-3" key={index}>
