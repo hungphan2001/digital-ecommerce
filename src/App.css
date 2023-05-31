@@ -39,6 +39,7 @@ a {
 
 .error {
   color: red;
+  font-style: 12px;
 }
 
 .gap-10 {
