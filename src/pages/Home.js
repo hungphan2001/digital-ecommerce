@@ -21,7 +21,7 @@ import {getAllProducts} from '../features/products/productSlice';
 import moment from 'moment';
 const Home = () => {
   const blogState = useSelector((state) => state?.blog?.blog);
-  const productState = useSelector((state)=>state.product.product);
+  const productState = useSelector((state)=>state?.product?.product);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
