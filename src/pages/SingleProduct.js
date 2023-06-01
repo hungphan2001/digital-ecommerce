@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactStars from "react-rating-stars-component";
 import { useDispatch, useSelector } from "react-redux";
 import BreadCrumb from "../components/BreadCrumb";
@@ -8,38 +8,58 @@ import ReactImageZoom from "react-image-zoom";
 import Color from "../components/Color";
 import { TbGitCompare } from "react-icons/tb";
 import { AiOutlineHeart } from "react-icons/ai";
-import { Link,useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import watch from "../images/watch.jpg";
 import Container from "../components/Container";
 import { getAProduct } from "../features/products/productSlice";
 import { toast } from "react-toastify";
-import {addProToCart} from "../features/user/userSlice"
+import { addProToCart, getUserCart } from "../features/user/userSlice";
 const SingleProduct = () => {
-  const [color,setColor] = useState(null);
-  const [quantity,setQuantity] = useState(1);
+  const [color, setColor] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [alreadyAdded, setAlreadyAdded] = useState(false);
   const productState = useSelector((state) => state.product.singleproduct);
+  const cartState = useSelector((state) => state.auth.cartProducts);
   const location = useLocation();
+  const navigate = useNavigate();
   const getProductId = location.pathname.split("/")[2];
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getAProduct(getProductId));
+    dispatch(getUserCart());
   }, []);
-  
-  const uploadCart = ()=>{
-    if(color===null){
-      toast.error("Please Choose Color")
-      return false
-    }else{
-      dispatch(addProToCart({productId:productState?._id,quantity,color,price:productState?.price}))
+  useEffect(() => {
+    for (let index = 0; index < cartState?.length; index++) {
+      if (getProductId === cartState[index]?.productId?._id) {
+        setAlreadyAdded(true);
+      }
     }
-  }
+  });
+
+  const uploadCart = () => {
+    if (color === null) {
+      toast.error("Please Choose Color");
+      return false;
+    } else {
+      dispatch(
+        addProToCart({
+          productId: productState?._id,
+          quantity,
+          color,
+          price: productState?.price,
+        })
+      );
+      navigate("/cart");
+    }
+  };
   const props = {
     width: 594,
     height: 600,
     zoomWidth: 600,
 
-    img: productState?.images[0]?.url ? productState?.images[0]?.url :
-    "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg",
+    img: productState?.images[0]?.url
+      ? productState?.images[0]?.url
+      : "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg",
   };
 
   const [orderedProduct, setorderedProduct] = useState(true);
@@ -66,37 +86,24 @@ const SingleProduct = () => {
               </div>
             </div>
             <div className="other-product-images d-flex flex-wrap gap-15">
-              {
-                productState?.images.map((item,index)=>{
-                  return(
-                    <>
+              {productState?.images.map((item, index) => {
+                return (
+                  <>
                     <div>
-                <img
-                  src={item?.url}
-                  className="img-fluid"
-                  alt=""
-                />
-              </div>
-              <div>
-                <img
-                  src={item?.url}
-                  className="img-fluid"
-                  alt=""
-                />
-              </div>
-                    </>
-              
-                  )
-                })
-              }
+                      <img src={item?.url} className="img-fluid" alt="" />
+                    </div>
+                    <div>
+                      <img src={item?.url} className="img-fluid" alt="" />
+                    </div>
+                  </>
+                );
+              })}
             </div>
           </div>
           <div className="col-6">
             <div className="main-product-details">
               <div className="border-bottom">
-                <h3 className="title">
-                {productState?.title}
-                </h3>
+                <h3 className="title">{productState?.title}</h3>
               </div>
               <div className="border-bottom py-3">
                 <p className="price">$ {productState?.price}</p>
@@ -152,36 +159,55 @@ const SingleProduct = () => {
                     </span>
                   </div>
                 </div>
-                <div className="d-flex gap-10 flex-column mt-2 mb-3">
-                  <h3 className="product-heading">Color :</h3>
-                  <Color setColor={setColor} colorData={productState?.color} />
-                </div>
+                {alreadyAdded == false && (
+                  <>
+                    <div className="d-flex gap-10 flex-column mt-2 mb-3">
+                      <h3 className="product-heading">Color :</h3>
+                      <Color
+                        setColor={setColor}
+                        colorData={productState?.color}
+                      />
+                    </div>
+                  </>
+                )}
                 <div className="d-flex align-items-center gap-15 flex-row mt-2 mb-3">
-                  <h3 className="product-heading">Quantity :</h3>
-                  <div className="">
-                    <input
-                      type="number"
-                      name=""
-                      min={1}
-                      max={10}
-                      className="form-control"
-                      style={{ width: "70px" }}
-                      id=""
-                      onChange={(e)=>setQuantity(e.target.value)}
-                      value={quantity}
-                    />
-                  </div>
-                  <div className="d-flex align-items-center gap-30 ms-5">
+                  {alreadyAdded === false && (
+                    <>
+                      <h3 className="product-heading">Quantity :</h3>
+                      <div className="">
+                        <input
+                          type="number"
+                          name=""
+                          min={1}
+                          max={10}
+                          className="form-control"
+                          style={{ width: "70px" }}
+                          id=""
+                          onChange={(e) => setQuantity(e.target.value)}
+                          value={quantity}
+                        />
+                      </div>
+                    </>
+                  )}
+                  <div
+                    className={
+                      alreadyAdded
+                        ? "ms-0"
+                        : "ms-5" + "d-flex align-items-center gap-30 ms-5"
+                    }
+                  >
                     <button
                       className="button border-0"
                       // data-bs-toggle="modal"
                       // data-bs-target="#staticBackdrop"
                       type="button"
-                      onClick={()=>{uploadCart()}}
+                      onClick={() => {
+                        alreadyAdded ? navigate("/cart") : uploadCart();
+                      }}
                     >
-                      Add to Cart
+                      {alreadyAdded ? "Go To Cart" : "Add to Cart"}
                     </button>
-                    <button className="button signup">Buy It Now</button>
+                    {/* <button className="button signup">Buy It Now</button> */}
                   </div>
                 </div>
                 <div className="d-flex align-items-center gap-15">
@@ -209,8 +235,7 @@ const SingleProduct = () => {
                   <a
                     href="javascript:void(0);"
                     onClick={() => {
-                      copyToClipboard(
-                        window.location.href);
+                      copyToClipboard(window.location.href);
                     }}
                   >
                     Copy Product Link
@@ -226,8 +251,9 @@ const SingleProduct = () => {
           <div className="col-12">
             <h4>Description</h4>
             <div className="bg-white p-3">
-              <p dangerouslySetInnerHTML={{__html: productState?.description}}>
-              </p>
+              <p
+                dangerouslySetInnerHTML={{ __html: productState?.description }}
+              ></p>
             </div>
           </div>
         </div>
