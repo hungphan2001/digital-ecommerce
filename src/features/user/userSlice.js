@@ -26,7 +26,29 @@ export const getUserProductWishlist = createAsyncThunk(
             return thunkAPI.rejectWithValue(error);
         }
     }
-)
+);
+
+export const addProToCart = createAsyncThunk(
+    "user/cart/add",
+    async (cartData,thunkAPI)=>{
+        try{
+            return await authService.addToCart(cartData);
+        } catch(error){
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
+export const getUserCart = createAsyncThunk(
+    "user/cart/get",
+    async (thunkAPI)=>{
+        try{
+            return await authService.getCart();
+        } catch(error){
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
 
 const getCustomerfromLocalStorage = localStorage.getItem("customer")
   ? JSON.parse(localStorage.getItem("customer"))
@@ -92,6 +114,33 @@ export const authSlice = createSlice({
             state.isSuccess=true;
             state.wishlist=action.payload;
         }).addCase(getUserProductWishlist.rejected,(state,action)=>{
+            state.isLoading=false;
+            state.isError=true;
+            state.isSuccess=false;
+            state.message=action.error;
+        }).addCase(addProToCart.pending,(state)=>{
+            state.isLoading=true;
+        }).addCase(addProToCart.fulfilled,(state,action)=>{
+            state.isLoading=false;
+            state.isError=false;
+            state.isSuccess=true;
+            state.cartProduct=action.payload;
+            if(state.isSuccess){
+                toast.success("Product Added To Cart")
+            }
+        }).addCase(addProToCart.rejected,(state,action)=>{
+            state.isLoading=false;
+            state.isError=true;
+            state.isSuccess=false;
+            state.message=action.error;
+        }).addCase(getUserCart.pending,(state)=>{
+            state.isLoading=true;
+        }).addCase(getUserCart.fulfilled,(state,action)=>{
+            state.isLoading=false;
+            state.isError=false;
+            state.isSuccess=true;
+            state.cartProducts=action.payload;
+        }).addCase(getUserCart.rejected,(state,action)=>{
             state.isLoading=false;
             state.isError=true;
             state.isSuccess=false;

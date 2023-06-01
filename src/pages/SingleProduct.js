@@ -12,17 +12,27 @@ import { Link,useLocation } from "react-router-dom";
 import watch from "../images/watch.jpg";
 import Container from "../components/Container";
 import { getAProduct } from "../features/products/productSlice";
+import { toast } from "react-toastify";
+import {addProToCart} from "../features/user/userSlice"
 const SingleProduct = () => {
+  const [color,setColor] = useState(null);
+  const [quantity,setQuantity] = useState(1);
   const productState = useSelector((state) => state.product.singleproduct);
   const location = useLocation();
   const getProductId = location.pathname.split("/")[2];
   const dispatch = useDispatch();
   useEffect(() => {
-    getproduct();
-  }, []);
-  const getproduct = () => {
     dispatch(getAProduct(getProductId));
-  };
+  }, []);
+  
+  const uploadCart = ()=>{
+    if(color===null){
+      toast.error("Please Choose Color")
+      return false
+    }else{
+      dispatch(addProToCart({productId:productState?._id,quantity,color,price:productState?.price}))
+    }
+  }
   const props = {
     width: 594,
     height: 600,
@@ -144,7 +154,7 @@ const SingleProduct = () => {
                 </div>
                 <div className="d-flex gap-10 flex-column mt-2 mb-3">
                   <h3 className="product-heading">Color :</h3>
-                  <Color />
+                  <Color setColor={setColor} colorData={productState?.color} />
                 </div>
                 <div className="d-flex align-items-center gap-15 flex-row mt-2 mb-3">
                   <h3 className="product-heading">Quantity :</h3>
@@ -157,14 +167,17 @@ const SingleProduct = () => {
                       className="form-control"
                       style={{ width: "70px" }}
                       id=""
+                      onChange={(e)=>setQuantity(e.target.value)}
+                      value={quantity}
                     />
                   </div>
                   <div className="d-flex align-items-center gap-30 ms-5">
                     <button
                       className="button border-0"
-                      data-bs-toggle="modal"
-                      data-bs-target="#staticBackdrop"
+                      // data-bs-toggle="modal"
+                      // data-bs-target="#staticBackdrop"
                       type="button"
+                      onClick={()=>{uploadCart()}}
                     >
                       Add to Cart
                     </button>
