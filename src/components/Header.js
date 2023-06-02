@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, Navigate, useNavigate } from "react-router-dom";
 import { BsSearch } from "react-icons/bs";
 import compare from "../images/compare.svg";
 import wishlist from "../images/wishlist.svg";
@@ -12,6 +12,7 @@ const Header = () => {
   const [total,setTotal]= useState(null);
   const authState = useSelector(state=>state.auth);
   const cartState = useSelector(state=>state?.auth?.cartProducts);
+  const navigate = useNavigate();
   useEffect(()=>{
     let sum =0;
     for(let index = 0;index<cartState?.length;index++){
@@ -19,6 +20,11 @@ const Header = () => {
       setTotal(sum);
     }
   },[cartState])
+  const handlerLogout=()=>{
+    localStorage.clear()
+    window.location.reload()
+    navigate("/");
+  }
   return (
     <>
       <header className="header-top-strip py-3">
@@ -167,6 +173,10 @@ const Header = () => {
                     <NavLink to="/my-orders">My Orders</NavLink>
                     <NavLink to="/blogs">Blogs</NavLink>
                     <NavLink to="/contact">Contact</NavLink>
+                    <button 
+                    onClick={handlerLogout}
+                    className="border border-0 bg-transparent text-white text-uppercase" 
+                    type="button">Logout</button>
                   </div>
                 </div>
               </div>
