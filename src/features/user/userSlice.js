@@ -82,6 +82,27 @@ export const createAnOrder = createAsyncThunk(
         }
     }
 );
+export const getOrders = createAsyncThunk(
+    "user/order/get",
+    async (thunkAPI)=>{
+        try{
+            return await authService.getUserOrders();
+        } catch(error){
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
+
+export const updateProfile = createAsyncThunk(
+    "user/profile/update",
+    async (data,thunkAPI)=>{
+        try{
+            return await authService.updateUser(data);
+        } catch(error){
+            return thunkAPI.rejectWithValue(error);
+        }
+    }
+);
 
 const getCustomerfromLocalStorage = localStorage.getItem("customer")
   ? JSON.parse(localStorage.getItem("customer"))
@@ -225,6 +246,39 @@ export const authSlice = createSlice({
                 toast.success("Ordered Successful!");
             }
         }).addCase(createAnOrder.rejected,(state,action)=>{
+            state.isLoading=false;
+            state.isError=true;
+            state.isSuccess=false;
+            state.message=action.error;
+            if(state.isSuccess ===false){
+                toast.error("Something Went Wrong !");
+            }
+        }).addCase(getOrders.pending,(state)=>{
+            state.isLoading=true;
+        }).addCase(getOrders.fulfilled,(state,action)=>{
+            state.isLoading=false;
+            state.isError=false;
+            state.isSuccess=true;
+            state.getorderedProduct=action.payload;
+        }).addCase(getOrders.rejected,(state,action)=>{
+            state.isLoading=false;
+            state.isError=true;
+            state.isSuccess=false;
+            state.message=action.error;
+            if(state.isSuccess ===false){
+                toast.error("Something Went Wrong !");
+            }
+        }).addCase(updateProfile.pending,(state)=>{
+            state.isLoading=true;
+        }).addCase(updateProfile.fulfilled,(state,action)=>{
+            state.isLoading=false;
+            state.isError=false;
+            state.isSuccess=true;
+            state.updateUser=action.payload;
+            if(state.isSuccess){
+                toast.success("Your Profile Updated !");
+            }
+        }).addCase(updateProfile.rejected,(state,action)=>{
             state.isLoading=false;
             state.isError=true;
             state.isSuccess=false;
