@@ -28,7 +28,7 @@ const SingleProduct = () => {
   useEffect(() => {
     dispatch(getAProduct(getProductId));
     dispatch(getUserCart());
-    dispatch((getAllProducts()))
+    dispatch(getAllProducts())
   }, []);
   useEffect(() => {
     for (let index = 0; index < cartState?.length; index++) {

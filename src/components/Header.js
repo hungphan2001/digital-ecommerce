@@ -96,7 +96,7 @@ const Header = () => {
             <div className="col-5">
               <div className="header-upper-links d-flex align-items-center justify-content-between">
                 <div>
-                  <Link
+                  {/* <Link
                     to="/compare-product"
                     className="d-flex align-items-center gap-10 text-white"
                   >
@@ -104,7 +104,7 @@ const Header = () => {
                     <p className="mb-0">
                       Compare <br /> Products
                     </p>
-                  </Link>
+                  </Link> */}
                 </div>
                 <div>
                   <Link

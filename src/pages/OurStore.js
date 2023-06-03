@@ -92,8 +92,8 @@ const OurStore = () => {
                 <div>
                   <Color />
                 </div>
-                <h5 className="sub-title">Size</h5>
-                <div>
+                {/* <h5 className="sub-title">Size</h5> */}
+                {/* <div>
                   <div className="form-check">
                     <input
                       className="form-check-input"
@@ -116,7 +116,7 @@ const OurStore = () => {
                       M (2)
                     </label>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
             <div className="filter-card mb-3">
