@@ -8,10 +8,17 @@ import cart from "../images/cart.svg";
 import menu from "../images/menu.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
+import { Typeahead } from 'react-bootstrap-typeahead'; // ES2015
+// Import as a module in your JS
+import 'react-bootstrap-typeahead/css/Typeahead.css';
+
 const Header = () => {
   const [total,setTotal]= useState(null);
   const authState = useSelector(state=>state.auth);
   const cartState = useSelector(state=>state?.auth?.cartProducts);
+  const productState = useSelector(state=>state?.product?.product);
+  const [paginate, setPaginate] = useState(true);
+  const [productOpt,setProductOpt]= useState([])
   const navigate = useNavigate();
   useEffect(()=>{
     let sum =0;
@@ -20,6 +27,16 @@ const Header = () => {
       setTotal(sum);
     }
   },[cartState])
+
+  useEffect(()=>{
+    let data =[]
+    for(let index = 0;index<productState?.length;index++){
+      const element = productState[index];
+      data.push({id:index,prod:element?._id,name:element?.title})
+    }
+    setProductOpt(data)
+  },[productState])
+
   const handlerLogout=()=>{
     localStorage.clear()
     window.location.reload()
@@ -56,13 +73,18 @@ const Header = () => {
             </div>
             <div className="col-5">
               <div className="input-group">
-                <input
-                  type="text"
-                  className="form-control py-2"
-                  placeholder="Search Product Here..."
-                  aria-label="Search Product Here..."
-                  aria-describedby="basic-addon2"
-                />
+              <Typeahead
+        id="pagination-example"
+        onPaginate={() => console.log('Results paginated')}
+        onChange={(selected)=>{
+          navigate(`/product/${selected[0].prod}`)
+        }}
+        options={productOpt}
+        paginate={paginate}
+        labelKey={"name"}
+        minLength={2}
+        placeholder="Search for products here..."
+      />
                 <span className="input-group-text p-3" id="basic-addon2">
                   <BsSearch className="fs-6" />
                 </span>
