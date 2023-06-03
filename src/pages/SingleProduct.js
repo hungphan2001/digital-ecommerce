@@ -11,15 +11,16 @@ import { AiOutlineHeart } from "react-icons/ai";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import watch from "../images/watch.jpg";
 import Container from "../components/Container";
-import { getAProduct } from "../features/products/productSlice";
+import { addRating, getAProduct, getAllProducts } from "../features/products/productSlice";
 import { toast } from "react-toastify";
 import { addProToCart, getUserCart } from "../features/user/userSlice";
 const SingleProduct = () => {
   const [color, setColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [alreadyAdded, setAlreadyAdded] = useState(false);
-  const productState = useSelector((state) => state.product.singleproduct);
-  const cartState = useSelector((state) => state.auth.cartProducts);
+  const productState = useSelector((state) => state?.product?.singleproduct);
+  const productsState = useSelector((state) => state?.product?.product);
+  const cartState = useSelector((state) => state?.auth?.cartProducts);
   const location = useLocation();
   const navigate = useNavigate();
   const getProductId = location.pathname.split("/")[2];
@@ -27,6 +28,7 @@ const SingleProduct = () => {
   useEffect(() => {
     dispatch(getAProduct(getProductId));
     dispatch(getUserCart());
+    dispatch((getAllProducts()))
   }, []);
   useEffect(() => {
     for (let index = 0; index < cartState?.length; index++) {
@@ -73,6 +75,35 @@ const SingleProduct = () => {
     textField.remove();
   };
   const closeModal = () => {};
+  const [popularProduct,setPopularProduct] = useState([])
+  useEffect(()=>{
+    let data =[];
+    for(let index =0 ; index<productsState.length;index++){
+      const element = productsState[index];
+      if(element.tags ==='popular'){
+        data.push(element)
+      }
+      setPopularProduct(data)
+    }
+  },[productState])
+
+  const [star,setStar] = useState(null);
+  const [comment,setComment]= useState(null);
+  const addRatingToProduct = ()=>{
+    if(star===null){
+      toast.error("Plz add star rating")
+      return false
+    }else if(comment === null){
+      toast.error("Plz Write rviiew about the product")
+      return false
+    }else{
+      dispatch(addRating({star:star,comment:comment,prodId:getProductId}))
+      setTimeout(()=>{
+        dispatch(getAProduct(getProductId));
+      },100)
+    }
+    return false
+  }
   return (
     <>
       <Meta title={productState?.title} />
@@ -141,23 +172,6 @@ const SingleProduct = () => {
                 <div className="d-flex gap-10 align-items-center my-2">
                   <h3 className="product-heading">Availablity :</h3>
                   <p className="product-data">In Stock</p>
-                </div>
-                <div className="d-flex gap-10 flex-column mt-2 mb-3">
-                  <h3 className="product-heading">Size :</h3>
-                  <div className="d-flex flex-wrap gap-15">
-                    <span className="badge border border-1 bg-white text-dark border-secondary">
-                      S
-                    </span>
-                    <span className="badge border border-1 bg-white text-dark border-secondary">
-                      M
-                    </span>
-                    <span className="badge border border-1 bg-white text-dark border-secondary">
-                      XL
-                    </span>
-                    <span className="badge border border-1 bg-white text-dark border-secondary">
-                      XXL
-                    </span>
-                  </div>
                 </div>
                 {alreadyAdded == false && (
                   <>
@@ -287,7 +301,7 @@ const SingleProduct = () => {
               </div>
               <div className="review-form py-4">
                 <h4>Write a Review</h4>
-                <form action="" className="d-flex flex-column gap-15">
+                
                   <div>
                     <ReactStars
                       count={5}
@@ -295,6 +309,9 @@ const SingleProduct = () => {
                       value={4}
                       edit={true}
                       activeColor="#ffd700"
+                      onChange={(e)=>{
+                        setStar(e)
+                      }}
                     />
                   </div>
                   <div>
@@ -305,33 +322,36 @@ const SingleProduct = () => {
                       cols="30"
                       rows="4"
                       placeholder="Comments"
+                      onChange={(e)=>{
+                        setComment(e.target.value)
+                      }}
                     ></textarea>
                   </div>
-                  <div className="d-flex justify-content-end">
-                    <button className="button border-0">Submit Review</button>
+                  <div className="d-flex justify-content-end mt-3">
+                    <button onClick={addRatingToProduct} className="button border-0"type='button'>Submit Review</button>
                   </div>
-                </form>
               </div>
               <div className="reviews mt-4">
-                <div className="review">
+                {
+                  productState && productState?.ratings?.map((item,index)=>{
+                    return(
+                      <div key={index}className="review">
                   <div className="d-flex gap-10 align-items-center">
-                    <h6 className="mb-0">Navdeep</h6>
                     <ReactStars
                       count={5}
                       size={24}
-                      value={4}
+                      value={item?.star}
                       edit={false}
                       activeColor="#ffd700"
                     />
                   </div>
                   <p className="mt-3">
-                    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                    Consectetur fugit ut excepturi quos. Id reprehenderit
-                    voluptatem placeat consequatur suscipit ex. Accusamus dolore
-                    quisquam deserunt voluptate, sit magni perspiciatis quas
-                    iste?
+                    {item?.comment}
                   </p>
                 </div>
+                    )
+                  })
+                }
               </div>
             </div>
           </div>
@@ -344,64 +364,9 @@ const SingleProduct = () => {
           </div>
         </div>
         <div className="row">
-          <ProductCard />
+          <ProductCard data={popularProduct} />
         </div>
       </Container>
-
-      <div
-        className="modal fade"
-        id="staticBackdrop"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabindex="-1"
-        aria-labelledby="staticBackdropLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered ">
-          <div className="modal-content">
-            <div className="modal-header py-0 border-0">
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body py-0">
-              <div className="d-flex align-items-center">
-                <div className="flex-grow-1 w-50">
-                  <img src={watch} className="img-fluid" alt="product imgae" />
-                </div>
-                <div className="d-flex flex-column flex-grow-1 w-50">
-                  <h6 className="mb-3">Apple Watch</h6>
-                  <p className="mb-1">Quantity: asgfd</p>
-                  <p className="mb-1">Color: asgfd</p>
-                  <p className="mb-1">Size: asgfd</p>
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer border-0 py-0 justify-content-center gap-30">
-              <button type="button" className="button" data-bs-dismiss="modal">
-                View My Cart
-              </button>
-              <button type="button" className="button signup">
-                Checkout
-              </button>
-            </div>
-            <div className="d-flex justify-content-center py-3">
-              <Link
-                className="text-dark"
-                to="/product"
-                onClick={() => {
-                  closeModal();
-                }}
-              >
-                Continue To Shopping
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
     </>
   );
 };
