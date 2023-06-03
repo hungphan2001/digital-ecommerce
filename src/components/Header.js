@@ -77,7 +77,7 @@ const Header = () => {
         id="pagination-example"
         onPaginate={() => console.log('Results paginated')}
         onChange={(selected)=>{
-          navigate(`/product/${selected[0].prod}`)
+          navigate(`/product/${selected[0]?.prod}`)
         }}
         options={productOpt}
         paginate={paginate}
