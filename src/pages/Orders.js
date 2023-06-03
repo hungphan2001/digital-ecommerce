@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import Meta from "../components/Meta";
 import BreadCrumb from "../components/BreadCrumb";
 import Container from "../components/Container";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +15,8 @@ const Orders = () => {
   });
   return (
     <>
-      <BreadCrumb title="My Orders"></BreadCrumb>
+    <Meta title={"My Orders"} />
+      <BreadCrumb title="My Orders" />
       <Container class1="cart-wrapper home-wrapper-2 py-5">
         <div className="row">
           <div className="col-12">

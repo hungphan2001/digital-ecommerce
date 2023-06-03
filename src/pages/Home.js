@@ -1,4 +1,5 @@
 import React,{useEffect} from "react";
+import Meta from "../components/Meta";
 import { Link, useNavigate } from "react-router-dom";
 import Marquee from "react-fast-marquee";
 import BlogCard from "../components/BlogCard";
@@ -39,6 +40,7 @@ const Home = () => {
   };
   return (
     <>
+      <Meta title={"Digital"} />
       <Container class1="home-wrapper-1 py-5">
         <div className="row">
           <div className="col-6">

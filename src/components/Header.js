@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import { Typeahead } from 'react-bootstrap-typeahead'; // ES2015
 // Import as a module in your JS
 import 'react-bootstrap-typeahead/css/Typeahead.css';
+import { getAProduct } from "../features/products/productSlice";
 
 const Header = () => {
   const [total,setTotal]= useState(null);
@@ -20,6 +21,7 @@ const Header = () => {
   const [paginate, setPaginate] = useState(true);
   const [productOpt,setProductOpt]= useState([])
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   useEffect(()=>{
     let sum =0;
     for(let index = 0;index<cartState?.length;index++){
@@ -78,6 +80,7 @@ const Header = () => {
         onPaginate={() => console.log('Results paginated')}
         onChange={(selected)=>{
           navigate(`/product/${selected[0]?.prod}`)
+          dispatch(getAProduct(selected[0]?.prod))
         }}
         options={productOpt}
         paginate={paginate}
