@@ -1,7 +1,7 @@
 const express = require("express");
 const {
   createProduct,
-  getaProduct,
+  getProduct,
   getAllProduct,
   updateProduct,
   deleteProduct,
@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post("/", authMiddleware, isAdmin, createProduct);
 
-router.get("/:id", getaProduct);
+router.get("/:id", getProduct);
 router.put("/wishlist", authMiddleware, addToWishlist);
 router.put("/rating", authMiddleware, rating);
 router.put("/:id", authMiddleware, isAdmin, updateProduct);

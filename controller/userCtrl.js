@@ -12,6 +12,8 @@ const { generateRefreshToken } = require("../config/refreshtoken");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("./emailCtrl");
+const { log } = require("console");
+const { endianness } = require("os");
 
 // Create a User ----------------------------------------------
 
@@ -553,7 +555,7 @@ const getMyOders = asyncHandler(async(req,res)=>{
   const {_id}= req.user;
 
   try{
-    const orders = await Order.find({user:_id}).populate("user").populate("orderItems.product").populate("orderItems.color")
+    const orders = await Order.find({user:_id})
     res.json({
       orders
     })
@@ -561,6 +563,37 @@ const getMyOders = asyncHandler(async(req,res)=>{
     throw new Error(error)
   }
 })
+
+const getMonthWiseOrderIncome =asyncHandler(async(req,res)=>{
+  let monthNames=["January","February","March","April","May","June","July",
+  "August","September","October","November","December"];
+  let d= new Date();
+  let endDate = '';
+  d.setDate(1)
+  for (let index = 0; index < 11; index++) {
+    d.setMonth(d.getMonth()-1)
+    endDate=monthNames[d.getMonth()]+" "+d.getFullYear()
+    console.log(endDate)
+  }
+  const data = await Order.aggregate([
+    {
+      $match :{
+        createAt:{
+          $lte:new Date(),
+          $gte:new Date(endDate)
+        }
+      }
+    },{
+      $group:{
+        _id:{
+          month:"$month"
+        },amount:{$sum:"$totalPriceAfterDiscount"}
+      }
+    }
+  ])
+  res.json(data)
+})
+
 
 module.exports = {
   createUser,
@@ -584,5 +617,6 @@ module.exports = {
   createOrder,
   removeProductFromCart,
   updateProductQuantityFromCart,
-  getMyOders
+  getMyOders,
+  getMonthWiseOrderIncome,
 };

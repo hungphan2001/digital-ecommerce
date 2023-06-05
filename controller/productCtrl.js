@@ -43,7 +43,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
   }
 });
 
-const getaProduct = asyncHandler(async (req, res) => {
+const getProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   validateMongoDbId(id);
   try {
@@ -196,7 +196,7 @@ const rating = asyncHandler(async (req, res) => {
 
 module.exports = {
   createProduct,
-  getaProduct,
+  getProduct,
   getAllProduct,
   updateProduct,
   deleteProduct,
